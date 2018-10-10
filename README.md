@@ -1,16 +1,16 @@
 # gke-pwx-example
 
 ### relative links
-machine types
-https://cloud.google.com/compute/docs/machine-types
-zones
-https://cloud.google.com/compute/docs/regions-zones/#available  
-regions
-https://cloud.google.com/compute/docs/regions-zones/#available
-clusters
-https://cloud.google.com/kubernetes-engine/docs/how-to/managing-clusters
-kubectl
-https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl
+- machine types
+  - https://cloud.google.com/compute/docs/machine-types
+- zones
+  - https://cloud.google.com/compute/docs/regions-zones/#available  
+- regions
+  - https://cloud.google.com/compute/docs/regions-zones/#available
+- clusters
+  - https://cloud.google.com/kubernetes-engine/docs/how-to/managing-clusters
+- kubectl
+  - https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl
 
 ## Setup
 ```
@@ -126,3 +126,13 @@ portworx-etcd-cluster-qfnqg6jj7q   1/1       Running   0          33s       10.1
 portworx-etcd-cluster-trckvhxp9w   1/1       Running   0          1m        10.12.1.8   gke-test-cluster-ryan-default-pool-ac8eed24-c38h   <none>
 ```
 
+## TODO
+- show get etcd ep
+- px install/spec
+- pxctl output
+- ha failover example
+- postgres example
+- 3d snap example
+- cloudsnap
+- restore
+- scale
