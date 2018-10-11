@@ -1,0 +1,19 @@
+{
+    "CN": "etcd peer",
+    "hosts": [
+        "*.portworx-etcd-cluster.kube-system.svc",
+        "*.portworx-etcd-cluster.kube-system.svc.cluster.local"
+    ],
+    "key": {
+        "algo": "rsa",
+        "size": 2048
+    },
+    "names": [
+        {
+            "C": "US",
+            "L": "CA",
+            "ST": "San Francisco"
+        }
+    ]
+}
+

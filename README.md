@@ -11,6 +11,12 @@
   - https://cloud.google.com/kubernetes-engine/docs/how-to/managing-clusters
 - kubectl
   - https://cloud.google.com/kubernetes-engine/docs/how-to/cluster-access-for-kubectl
+- etcd TLS
+  - https://github.com/coreos/etcd-operator/blob/master/doc/user/cluster_tls.md
+- etcd backup operator
+  - https://github.com/coreos/etcd-operator/blob/master/doc/user/walkthrough/backup-operator.md
+- etcd restore operator
+  - https://github.com/coreos/etcd-operator/blob/master/doc/user/walkthrough/restore-operator.md
 
 ## Setup
 ```
@@ -99,6 +105,15 @@ Clusterrolebinding "myname-cluster-admin-binding" created
 
 ## Deploy Etcd
 
+Create Secretes for TLS
+```
+kubectl create secret -n kube-system generic etcd-peer-tls --from-file=etcd/certs/peer-ca.crt --from-file=etcd/certs/peer.crt --from-file=etcd/certs/peer.key
+
+kubectl create secret -n kube-system  generic etcd-server-tls --from-file=etcd/certs/server-ca.crt --from-file=etcd/certs/server.crt --from-file=etcd/certs/server.key
+
+kubectl create secret -n kube-system  generic etcd-client-tls --from-file=etcd/certs/etcd-client-ca.crt --from-file=etcd/certs/etcd-client.crt --from-file=etcd/certs/etcd-client.key
+```
+
 Deploy Operator
 ```
 kubectl apply -f etcd/rbac/cluster-role.yaml
@@ -124,6 +139,31 @@ NAME                               READY     STATUS    RESTARTS   AGE       IP  
 portworx-etcd-cluster-hc7w6cfxtv   1/1       Running   0          49s       10.12.0.6   gke-test-cluster-ryan-default-pool-ac8eed24-ftf7   <none>
 portworx-etcd-cluster-qfnqg6jj7q   1/1       Running   0          33s       10.12.2.6   gke-test-cluster-ryan-default-pool-ac8eed24-clh1   <none>
 portworx-etcd-cluster-trckvhxp9w   1/1       Running   0          1m        10.12.1.8   gke-test-cluster-ryan-default-pool-ac8eed24-c38h   <none>
+```
+
+Gather the Etcd endpoint that portworx needs
+```
+kubectl describe svc portworx-etcd-cluster-client -n kube-system
+Name:              portworx-etcd-cluster-client
+Namespace:         kube-system
+Labels:            app=etcd
+                   etcd_cluster=portworx-etcd-cluster
+Annotations:       service.alpha.kubernetes.io/tolerate-unready-endpoints=true
+Selector:          app=etcd,etcd_cluster=portworx-etcd-cluster
+Type:              ClusterIP
+IP:                10.15.240.61
+Port:              client  2379/TCP
+TargetPort:        2379/TCP
+Endpoints:         10.12.0.6:2379,10.12.1.8:2379,10.12.2.6:2379
+Session Affinity:  None
+Events:            <none>
+```
+
+Create PX Spec
+```
+VER=$(kubectl version --short | awk -Fv '/Server Version: /{print $3}')
+export ETCD="etcd://10.15.240.61:2379"
+curl -L -o px-spec.yaml "https://install.portworx.com/1.4/?c=mycluster&k=${ETCD}&kbver=$VER&stork=true&s=type=pd-ssd,size=200&st=k8s"
 ```
 
 ## TODO

@@ -6,3 +6,9 @@ metadata:
 spec:
   size: 3
   version: "3.2.7"
+  TLS:
+    static:
+      member:
+        peerSecret: etcd-peer-tls
+        serverSecret: etcd-server-tls
+      operatorSecret: etcd-client-tls
