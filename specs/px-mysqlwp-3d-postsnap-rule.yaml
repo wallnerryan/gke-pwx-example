@@ -1,0 +1,11 @@
+# https://docs.portworx.com/scheduler/kubernetes/snaps-3d.html
+apiVersion: stork.libopenstorage.org/v1alpha1
+kind: Rule
+metadata:
+  name: px-mysqlwp-postsnap-rule
+spec:
+  - podSelector:
+      app: <appName>
+    actions:
+    - type: command
+      value: <TODO>

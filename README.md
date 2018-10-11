@@ -17,6 +17,8 @@
   - https://github.com/coreos/etcd-operator/blob/master/doc/user/walkthrough/backup-operator.md
 - etcd restore operator
   - https://github.com/coreos/etcd-operator/blob/master/doc/user/walkthrough/restore-operator.md
+- etcd spec example
+  - https://github.com/coreos/etcd-operator/blob/master/doc/user/spec_examples.md
 
 ## Setup
 ```
@@ -103,70 +105,22 @@ kubectl create clusterrolebinding myname-cluster-admin-binding \
 Clusterrolebinding "myname-cluster-admin-binding" created
 ```
 
-## Deploy Etcd
-
-###Create Secretes for TLS
-```
-kubectl create secret -n kube-system generic etcd-peer-tls --from-file=etcd/certs/peer-ca.crt --from-file=etcd/certs/peer.crt --from-file=etcd/certs/peer.key
-
-kubectl create secret -n kube-system  generic etcd-server-tls --from-file=etcd/certs/server-ca.crt --from-file=etcd/certs/server.crt --from-file=etcd/certs/server.key
-
-kubectl create secret -n kube-system  generic etcd-client-tls --from-file=etcd/certs/etcd-client-ca.crt --from-file=etcd/certs/etcd-client.crt --from-file=etcd/certs/etcd-client.key
-```
-
-### Deploy Operator
-```
-kubectl apply -f etcd/rbac/cluster-role.yaml
-kubectl apply -f etcd/rbac/cluster-role-binding.yaml
-kubectl apply -f etcd/operator/etcd-operator.yaml
-```
-
-### Wait until its ready
-```
-kubectl get pods -o wide -n kube-system -l name=etcd-operator
-NAME                             READY     STATUS    RESTARTS   AGE       IP          NODE                                               NOMINATED NODE
-etcd-operator-768dc99865-p2l7p   1/1       Running   0          22s       10.12.1.7   gke-test-cluster-ryan-default-pool-ac8eed24-c38h   <none>
-```
-
-### Deploy Etcd
-`kubectl apply -f etcd/etcd-cluster.yaml`
-
-### Monitor if its ready
-```
-kubectl get pods -o wide -n kube-system -l app=etcd
-▶ kubectl get pods -o wide -n kube-system -l app=etcd
-NAME                               READY     STATUS    RESTARTS   AGE       IP          NODE                                               NOMINATED NODE
-portworx-etcd-cluster-hc7w6cfxtv   1/1       Running   0          49s       10.12.0.6   gke-test-cluster-ryan-default-pool-ac8eed24-ftf7   <none>
-portworx-etcd-cluster-qfnqg6jj7q   1/1       Running   0          33s       10.12.2.6   gke-test-cluster-ryan-default-pool-ac8eed24-clh1   <none>
-portworx-etcd-cluster-trckvhxp9w   1/1       Running   0          1m        10.12.1.8   gke-test-cluster-ryan-default-pool-ac8eed24-c38h   <none>
-```
-
-### Gather the Etcd endpoint that portworx needs
-```
-kubectl describe svc portworx-etcd-cluster-client -n kube-system
-Name:              portworx-etcd-cluster-client
-Namespace:         kube-system
-Labels:            app=etcd
-                   etcd_cluster=portworx-etcd-cluster
-Annotations:       service.alpha.kubernetes.io/tolerate-unready-endpoints=true
-Selector:          app=etcd,etcd_cluster=portworx-etcd-cluster
-Type:              ClusterIP
-IP:                10.15.240.61
-Port:              client  2379/TCP
-TargetPort:        2379/TCP
-Endpoints:         10.12.0.6:2379,10.12.1.8:2379,10.12.2.6:2379
-Session Affinity:  None
-Events:            <none>
-```
-
 ## Deploy Portworx DaemonSet
 
 ### Create PX Spec
 
 > This guide proviced a pre-configure portworx spec in `specs/px-spec.yaml`
 
-1. Visit and fill out https://install.portworx.com/1.6/
+Gather the Etcd endpoint that portworx needs in https://install.portworx.com/
+```
+kubectl describe svc portworx-etcd-cluster-client -n kube-system | grep IP:
+IP:                10.15.250.249
+```
+
+1. Visit and fill out https://install.portworx.com/
 2. Make sure and modify the portworx spec to include etcd certs (https://docs.portworx.com/scheduler/kubernetes/etcd-certs-using-secrets.html#edit-portworx-spec)
+
+### Use your produces spec or the one in `specs/`
 
 ```
 $ kubectl create -f specs/px-spec.yaml
@@ -218,14 +172,35 @@ alias pxctl="kubectl exec $PX_POD -n kube-system -- /opt/pwx/bin/pxctl"
 
 ### Get pxctl status
 ```
-pxctl status
+$ pxctl status
+
+Status: PX is operational
+License: Trial (expires in 31 days)
+Node ID: gke-test-cluster-ryan-default-pool-a072badd-l093
+        IP: 10.142.0.3
+        Local Storage Pool: 1 pool
+        POOL    IO_PRIORITY     RAID_LEVEL      USABLE  USED    STATUS  ZONE            REGION
+        0       MEDIUM          raid0           50 GiB  4.3 GiB Online  us-east1-d      us-east1
+        Local Storage Devices: 1 device
+        Device  Path            Media Type              Size            Last-Scan
+        0:1     /dev/sdb        STORAGE_MEDIUM_MAGNETIC 50 GiB          11 Oct 18 19:35 UTC
+        total                   -                       50 GiB
+Cluster Summary
+        Cluster ID: px-cluster-007aa43d-f378-49d6-b410-0670dde8f5b7
+        Cluster UUID: d5b722d7-679d-4cbb-8ade-188fbbf1e9a6
+        Scheduler: kubernetes
+        Nodes: 3 node(s) with storage (3 online)
+        IP              ID                                                      StorageNode     Used    Capacity        Status  StorageStatus   Version         Kernel          OS
+        10.142.0.4      gke-test-cluster-ryan-default-pool-a072badd-sqbk        Yes             4.3 GiB 50 GiB          Online  Up              1.6.1.1-aaccadf 4.15.0-1017-gcp Ubuntu 16.04.5 LTS
+        10.142.0.3      gke-test-cluster-ryan-default-pool-a072badd-l093        Yes             4.3 GiB 50 GiB          Online  Up (This node)  1.6.1.1-aaccadf 4.15.0-1017-gcp Ubuntu 16.04.5 LTS
+        10.142.0.2      gke-test-cluster-ryan-default-pool-a072badd-bztf        Yes             4.3 GiB 50 GiB          Online  Up              1.6.1.1-aaccadf 4.15.0-1017-gcp Ubuntu 16.04.5 LTS
+Global Storage Pool
+        Total Used      :  13 GiB
+        Total Capacity  :  150 GiB
 ```
 
 
 ## TODO
-- show get etcd ep
-- px install/spec
-- pxctl output
 - ha failover example
 - postgres example
 - 3d snap example
@@ -233,9 +208,3 @@ pxctl status
 - restore
 - scale
 
-## issues
-
-### TLS with etcd-operator
-Possible etcd tls bug with 3.2.7
- - https://github.com/etcd-io/etcd/issues/8603 
- (use non `-tls` versions of specs)
