@@ -105,7 +105,7 @@ Clusterrolebinding "myname-cluster-admin-binding" created
 
 ## Deploy Etcd
 
-Create Secretes for TLS
+###Create Secretes for TLS
 ```
 kubectl create secret -n kube-system generic etcd-peer-tls --from-file=etcd/certs/peer-ca.crt --from-file=etcd/certs/peer.crt --from-file=etcd/certs/peer.key
 
@@ -114,24 +114,24 @@ kubectl create secret -n kube-system  generic etcd-server-tls --from-file=etcd/c
 kubectl create secret -n kube-system  generic etcd-client-tls --from-file=etcd/certs/etcd-client-ca.crt --from-file=etcd/certs/etcd-client.crt --from-file=etcd/certs/etcd-client.key
 ```
 
-Deploy Operator
+### Deploy Operator
 ```
 kubectl apply -f etcd/rbac/cluster-role.yaml
 kubectl apply -f etcd/rbac/cluster-role-binding.yaml
 kubectl apply -f etcd/operator/etcd-operator.yaml
 ```
 
-Wait until its ready
+### Wait until its ready
 ```
 kubectl get pods -o wide -n kube-system -l name=etcd-operator
 NAME                             READY     STATUS    RESTARTS   AGE       IP          NODE                                               NOMINATED NODE
 etcd-operator-768dc99865-p2l7p   1/1       Running   0          22s       10.12.1.7   gke-test-cluster-ryan-default-pool-ac8eed24-c38h   <none>
 ```
 
-Deploy Etcd
+### Deploy Etcd
 `kubectl apply -f etcd/etcd-cluster.yaml`
 
-Monitor if its ready
+### Monitor if its ready
 ```
 kubectl get pods -o wide -n kube-system -l app=etcd
 ▶ kubectl get pods -o wide -n kube-system -l app=etcd
@@ -141,7 +141,7 @@ portworx-etcd-cluster-qfnqg6jj7q   1/1       Running   0          33s       10.1
 portworx-etcd-cluster-trckvhxp9w   1/1       Running   0          1m        10.12.1.8   gke-test-cluster-ryan-default-pool-ac8eed24-c38h   <none>
 ```
 
-Gather the Etcd endpoint that portworx needs
+### Gather the Etcd endpoint that portworx needs
 ```
 kubectl describe svc portworx-etcd-cluster-client -n kube-system
 Name:              portworx-etcd-cluster-client
@@ -159,11 +159,54 @@ Session Affinity:  None
 Events:            <none>
 ```
 
-Create PX Spec
+## Deploy Portworx DaemonSet
+
+### Create PX Spec
+
+> This guide proviced a pre-configure portworx spec in `specs/px-spec.yaml`
+
+1. Visit and fill out https://install.portworx.com/1.6/
+2. Make sure and modify the portworx spec to include etcd certs (https://docs.portworx.com/scheduler/kubernetes/etcd-certs-using-secrets.html#edit-portworx-spec)
+
 ```
-VER=$(kubectl version --short | awk -Fv '/Server Version: /{print $3}')
-export ETCD="etcd://10.15.240.61:2379"
-curl -L -o px-spec.yaml "https://install.portworx.com/1.4/?c=mycluster&k=${ETCD}&kbver=$VER&stork=true&s=type=pd-ssd,size=200&st=k8s"
+$ kubectl create -f specs/px-spec.yaml
+configmap/stork-config created
+serviceaccount/stork-account created
+clusterrole.rbac.authorization.k8s.io/stork-role created
+clusterrolebinding.rbac.authorization.k8s.io/stork-role-binding created
+service/stork-service created
+deployment.extensions/stork created
+storageclass.storage.k8s.io/stork-snapshot-sc created
+serviceaccount/stork-scheduler-account created
+clusterrole.rbac.authorization.k8s.io/stork-scheduler-role created
+clusterrolebinding.rbac.authorization.k8s.io/stork-scheduler-role-binding created
+deployment.apps/stork-scheduler created
+serviceaccount/portworx-pvc-controller-account created
+clusterrole.rbac.authorization.k8s.io/portworx-pvc-controller-role created
+clusterrolebinding.rbac.authorization.k8s.io/portworx-pvc-controller-role-binding created
+deployment.extensions/portworx-pvc-controller created
+service/portworx-service created
+serviceaccount/px-account created
+clusterrole.rbac.authorization.k8s.io/node-get-put-list-role created
+clusterrolebinding.rbac.authorization.k8s.io/node-role-binding created
+namespace/portworx created
+role.rbac.authorization.k8s.io/px-role created
+rolebinding.rbac.authorization.k8s.io/px-role-binding created
+daemonset.extensions/portworx created
+serviceaccount/px-lh-account created
+role.rbac.authorization.k8s.io/px-lh-role created
+rolebinding.rbac.authorization.k8s.io/px-lh-role-binding created
+service/px-lighthouse created
+deployment.apps/px-lighthouse created
+```
+
+### List Portworx Pods
+```
+kubectl get pods -o wide -n kube-system -l name=portworx
+NAME             READY     STATUS    RESTARTS   AGE       IP           NODE                                               NOMINATED NODE
+portworx-5tvdh   0/1       Running   0          34s       10.142.0.3   gke-test-cluster-ryan-default-pool-ac8eed24-clh1   <none>
+portworx-9mtvm   0/1       Running   0          34s       10.142.0.2   gke-test-cluster-ryan-default-pool-ac8eed24-ftf7   <none>
+portworx-kk42h   0/1       Running   0          34s       10.142.0.4   gke-test-cluster-ryan-default-pool-ac8eed24-c38h   <none>
 ```
 
 ## TODO
