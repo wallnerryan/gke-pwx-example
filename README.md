@@ -209,6 +209,18 @@ portworx-9mtvm   0/1       Running   0          34s       10.142.0.2   gke-test-
 portworx-kk42h   0/1       Running   0          34s       10.142.0.4   gke-test-cluster-ryan-default-pool-ac8eed24-c38h   <none>
 ```
 
+### When they are running, create access to `pxctl`
+```
+export PX_POD=$(kubectl get pods -l name=portworx -n kube-system -o jsonpath='{.items[2].metadata.name}')
+
+alias pxctl="kubectl exec $PX_POD -n kube-system -- /opt/pwx/bin/pxctl"
+```
+
+### Get pxctl status
+```
+pxctl status
+```
+
 
 ## TODO
 - show get etcd ep
@@ -220,3 +232,10 @@ portworx-kk42h   0/1       Running   0          34s       10.142.0.4   gke-test-
 - cloudsnap
 - restore
 - scale
+
+## issues
+
+### TLS with etcd-operator
+Possible etcd tls bug with 3.2.7
+ - https://github.com/etcd-io/etcd/issues/8603 
+ (use non `-tls` versions of specs)
