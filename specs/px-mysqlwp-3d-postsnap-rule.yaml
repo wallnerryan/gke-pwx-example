@@ -1,4 +1,5 @@
 # https://docs.portworx.com/scheduler/kubernetes/snaps-3d.html
+# https://docs.portworx.com/scheduler/kubernetes/snaps-3d.html#mysql
 apiVersion: stork.libopenstorage.org/v1alpha1
 kind: Rule
 metadata:
