@@ -1,0 +1,14 @@
+apiVersion: "etcd.database.coreos.com/v1beta2"
+kind: "EtcdCluster"
+metadata:
+  name: "portworx-etcd-cluster"
+  namespace: "kube-system"
+spec:
+  size: 3
+  version: "3.2.7"
+  TLS:
+    static:
+      member:
+        peerSecret: etcd-peer-tls
+        serverSecret: etcd-server-tls
+      operatorSecret: etcd-client-tls

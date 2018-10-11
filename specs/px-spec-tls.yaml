@@ -549,7 +549,7 @@ spec:
           image: portworx/oci-monitor:1.6.1.1
           imagePullPolicy: Always
           args:
-            ["-k", "etcd:http://$(PORTWORX_ETCD_CLUSTER_CLIENT_SERVICE_HOST):$(PORTWORX_ETCD_CLUSTER_CLIENT_SERVICE_PORT_CLIENT)", "-c", "px-cluster-007aa43d-f378-49d6-b410-0670dde8f5b7", "-s", "type=pd-ssd,size=50", "-secret_type", "k8s",  
+            ["-k", "etcd:https://portworx-etcd-cluster-client.kube-system.svc:$(PORTWORX_ETCD_CLUSTER_CLIENT_SERVICE_PORT_CLIENT)", "-c", "px-cluster-007aa43d-f378-49d6-b410-0670dde8f5b7", "-s", "type=pd-ssd,size=50", "-secret_type", "k8s", "-ca", "/etc/pwx/certs/etcd-client-ca.crt", "-cert", "/etc/pwx/certs/etcd-client.crt", "-key", "/etc/pwx/certs/etcd-client.key", 
              "-x", "kubernetes"]
           env:
             - name: "PX_TEMPLATE_VERSION"
@@ -572,6 +572,8 @@ spec:
           securityContext:
             privileged: true
           volumeMounts:
+            - name: etcdcerts
+              mountPath: /etc/pwx/certs/
             - name: dockersock
               mountPath: /var/run/docker.sock
             - name: etcpwx
@@ -595,6 +597,16 @@ spec:
       restartPolicy: Always
       serviceAccountName: px-account
       volumes:
+        - name: etcdcerts
+          secret:
+            secretName: etcd-client-tls
+            items:
+            - key: etcd-client-ca.crt
+              path: etcd-client-ca.crt
+            - key: etcd-client.crt
+              path: etcd-client.crt
+            - key: etcd-client.key
+              path: etcd-client.key
         - name: dockersock
           hostPath:
             path: /var/run/docker.sock
