@@ -269,3 +269,49 @@ testdb=# SELECT * FROM products;
           1 | Cheese |  9.99
 (1 row)
 ```
+
+## Perf Postgress on PWX using `"type=pd-ssd,size=50"` on `--machine-type=n1-standard-4`
+
+
+All start with:
+(Insert)
+`pgbench -i -s 70 postgres`
+
+### Read-Write Test
+
+```
+pgbench -c 4 -j 2 -T 600 postgres
+starting vacuum...end.
+transaction type: <builtin: TPC-B (sort of)>
+scaling factor: 70
+query mode: simple
+number of clients: 4
+number of threads: 2
+duration: 600 s
+number of transactions actually processed: 36799
+latency average = 65.228 ms
+tps = 61.323766 (including connections establishing)
+tps = 61.324093 (excluding connections establishing)
+```
+### Read-Only Test
+
+```
+pgbench -c 4 -j 2 -T 600 -S postgres
+starting vacuum...end.
+transaction type: <builtin: select only>
+scaling factor: 70
+query mode: simple
+number of clients: 4
+number of threads: 2
+duration: 600 s
+number of transactions actually processed: 15115559
+latency average = 0.159 ms
+tps = 25192.234667 (including connections establishing)
+tps = 25192.390429 (excluding connections establishing)
+```
+
+### Simple Write Test
+
+```
+pgbench -c 4 -j 2 -T 600 -N postgres
+```

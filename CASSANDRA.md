@@ -2,12 +2,11 @@
 
 1. create cassandra
 2. create some data by running perf
-3. create group snap
-
-(TODO)
-- backup?
-- cloudsnap?
-- restore?
+3. example snapgroup directly.
+4. create 3dsnap (creates snapgroup indirectly)
+  - Included rules to flushe the tables from the memtable on all cassandra pods.
+5. backup via above 3dsnap
+6. restore from 3dsnap clones
 
 ## Create
 
@@ -18,7 +17,39 @@ storageclass.storage.k8s.io/px-storageclass created
 statefulset.apps/cassandra created
 ```
 
-## Create data via perf
+## Create data
+```
+cqlsh> CREATE KEYSPACE newkeyspace WITH replication = {'class':'SimpleStrategy', 'replication_factor' : 3};
+cqlsh> DESCRIBE keyspaces;
+
+system_auth  system              system_traces
+system_schema   newkeyspace  system_distributed
+
+cqlsh:newkeyspace> CREATE TABLE emp(
+               ...    emp_id int PRIMARY KEY,
+               ...    emp_name text,
+               ...    emp_city text,
+               ...    emp_sal varint,
+               ...    emp_phone varint
+               ...    );
+cqlsh:newkeyspace> select * from emp;
+
+ emp_id | emp_city | emp_name | emp_phone | emp_sal
+--------+----------+----------+-----------+---------
+
+(0 rows)
+cqlsh:newkeyspace> INSERT INTO emp (emp_id, emp_name, emp_city,
+               ...    emp_phone, emp_sal) VALUES(1,'ram', 'Hyderabad', 9848022338, 50000);
+cqlsh:newkeyspace> select * from emp;
+
+ emp_id | emp_city  | emp_name | emp_phone  | emp_sal
+--------+-----------+----------+------------+---------
+      1 | Hyderabad |      ram | 9848022338 |   50000
+
+(1 rows)
+```
+
+## Perf
 
 ```
 kubectl exec -it cassandra-0 /bin/bash
@@ -136,3 +167,209 @@ ID			NAME												SIZE	HA	SHARED	ENCRYPTED	IO_PRIORITY	STATUS		HA-STATE
 1063977941417974563	group_snap_2_1539350078_pvc-18076b5b-ce20-11e8-8281-42010a8e0115				10 GiB	2	no	no		MEDIUM		none - detached	Detached
 586092072464896250	group_snap_2_1539350078_pvc-ee62365d-ce1f-11e8-8281-42010a8e0115				10 GiB	2	no	no		MEDIUM		none - detached	Detached
 ```
+
+# Create 3DSnap
+
+Portworx supports 3DSnapshots which allows specifying pre and post rules that are run on the application pods using the volumes being snapshotted. This allows users to quiesce the applications before the snapshot is taken and resume I/O after the snapshot is taken.
+
+## Presnap rule
+
+Use `nodetool flush` on cassandra before snapshoting.
+
+```
+apiVersion: stork.libopenstorage.org/v1alpha1
+kind: Rule
+metadata:
+  name: px-cassandra-presnap-rule
+spec:
+  - podSelector:
+      app: cassandra
+    actions:
+    - type: command
+      value: nodetool flush
+```
+
+### create the rule
+```
+kubectl create -f specs/cassandra-3dsnap-presnap-rule.yaml
+rule.stork.libopenstorage.org "px-cassandra-presnap-rule" created
+```
+
+## Define a PVC that uses this pre-snapshot rule.
+
+> Note becuase we are using `portworx.selector/app: cassandra` the pods also have this label.
+
+```
+apiVersion: volumesnapshot.external-storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: cassandra-3d-snapshot
+  annotations:
+    portworx.selector/app: cassandra
+    stork.rule/pre-snapshot: px-cassandra-presnap-rule
+spec:
+  persistentVolumeClaimName: cassandra-data-cassandra-0
+```
+
+### Create the snapshot
+```
+kubectl create -f specs/cassandra-3d-snap.yaml
+volumesnapshot.volumesnapshot.external-storage.k8s.io "cassandra-3d-snapshot" created
+```
+
+### View the snapshot
+```
+kubectl describe volumesnapshot cassandra-3d-snapshot
+Name:         cassandra-3d-snapshot
+Namespace:    default
+Labels:       SnapshotMetadata-PVName=pvc-ee62365d-ce1f-11e8-8281-42010a8e0115
+              SnapshotMetadata-Timestamp=1539354684474325222
+Annotations:  portworx.selector/app=cassandra
+              stork.rule/pre-snapshot=px-cassandra-presnap-rule
+API Version:  volumesnapshot.external-storage.k8s.io/v1
+Kind:         VolumeSnapshot
+Metadata:
+  Cluster Name:
+  Creation Timestamp:  2018-10-12T14:31:24Z
+  Generation:          0
+  Resource Version:    238299
+  Self Link:           /apis/volumesnapshot.external-storage.k8s.io/v1/namespaces/default/volumesnapshots/cassandra-3d-snapshot
+  UID:                 7ef55ed0-ce2b-11e8-8281-42010a8e0115
+Spec:
+  Persistent Volume Claim Name:  cassandra-data-cassandra-0
+  Snapshot Data Name:            k8s-volume-snapshot-83f2234c-ce2b-11e8-aa99-0a580a0c001b
+Status:
+  Conditions:
+    Last Transition Time:  2018-10-12T14:31:32Z
+    Message:               Snapshot created successfully and it is ready
+    Reason:
+    Status:                True
+    Type:                  Ready
+  Creation Timestamp:      <nil>
+Events:                    <none>
+```
+
+### List the 3d snapshot
+
+> With this snapshot, Stork will run the px-cassandra-presnap-rule rule on all pods that are using PVCs that match labels app=cassandra. Hence this will be a group snapshot.
+
+```
+kubectl get volumesnapshot
+NAME                                                                                       AGE
+cassandra-3d-snapshot                                                                      10s
+cassandra-3d-snapshot-cassandra-data-cassandra-0-7ef55ed0-ce2b-11e8-8281-42010a8e0115      2s
+cassandra-3d-snapshot-cassandra-data-cassandra-1-7ef55ed0-ce2b-11e8-8281-42010a8e0115      3s
+cassandra-3d-snapshot-cassandra-data-cassandra-2-7ef55ed0-ce2b-11e8-8281-42010a8e0115      3s
+```
+
+## Fail Cassandra and Restore from 3d Snap
+
+### Fail
+
+```
+$ kubectl get statefulset
+NAME        DESIRED   CURRENT   AGE
+cassandra   3         3         2h
+
+$  kubectl delete statefulset cassandra
+statefulset.apps "cassandra" deleted
+```
+
+### Restore from 3dsnap
+
+Create clones specs from 3d snapshots
+
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cassandra-data-cassandra-clone-0
+  annotations:
+    snapshot.alpha.kubernetes.io/snapshot: cassandra-3d-snapshot-cassandra-data-cassandra-0-7ef55ed0-ce2b-11e8-8281-42010a8e0115
+spec:
+  accessModes:
+     - ReadWriteOnce
+  storageClassName: stork-snapshot-sc
+  resources:
+    requests:
+      storage: 10Gi
+---
+
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cassandra-data-cassandra-clone-1
+  annotations:
+    snapshot.alpha.kubernetes.io/snapshot: cassandra-3d-snapshot-cassandra-data-cassandra-1-7ef55ed0-ce2b-11e8-8281-42010a8e0115
+spec:
+  accessModes:
+     - ReadWriteOnce
+  storageClassName: stork-snapshot-sc
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: cassandra-data-cassandra-clone-2
+  annotations:
+    snapshot.alpha.kubernetes.io/snapshot: cassandra-3d-snapshot-cassandra-data-cassandra-2-7ef55ed0-ce2b-11e8-8281-42010a8e0115
+spec:
+  accessModes:
+     - ReadWriteOnce
+  storageClassName: stork-snapshot-sc
+  resources:
+    requests:
+      storage: 10Gi
+```
+
+Create them.
+```
+kubectl create -f specs/cassandra-pwx-clones-from-3dsnap.yaml
+persistentvolumeclaim "cassandra-data-cassandra-clone-0" created
+persistentvolumeclaim "cassandra-data-cassandra-clone-1" created
+persistentvolumeclaim "cassandra-data-cassandra-clone-2" created
+```
+
+### View available PVCs
+```
+kubectl get pvc | grep cassandra-data-cassandra-clone
+cassandra-data-cassandra-clone-0   Bound     pvc-f76b4ebb-ce31-11e8-8281-42010a8e0115   10Gi       RWO            stork-snapshot-sc          6m
+cassandra-data-cassandra-clone-1   Bound     pvc-f772b417-ce31-11e8-8281-42010a8e0115   10Gi       RWO            stork-snapshot-sc          6m
+cassandra-data-cassandra-clone-2   Bound     pvc-f7795675-ce31-11e8-8281-42010a8e0115   10Gi       RWO            stork-snapshot-sc          6m
+```
+
+They are all unattached
+```
+pxctl volume list | grep pvc-f76b4ebb-ce31-11e8-8281-42010a8e0115
+322274964403122850       pvc-f76b4ebb-ce31-11e8-8281-42010a8e0115                            10 GiB  2       no      no              MEDIUM          none - detached                 Detached
+
+▶ pxctl volume list | grep pvc-f772b417-ce31-11e8-8281-42010a8e0115
+760161115976553002       pvc-f772b417-ce31-11e8-8281-42010a8e0115                            10 GiB  2       no      no              MEDIUM          none - detached                 Detached
+
+▶ pxctl volume list | grep pvc-f7795675-ce31-11e8-8281-42010a8e0115
+1047783292593844590      pvc-f7795675-ce31-11e8-8281-42010a8e0115                            10 GiB  2       no      no              MEDIUM          none - detached                 Detached
+
+```
+
+create a StatefulSet that now uses `cassandra-clone` for its name and other parameters so it picks up our PVC clones.
+```
+kind: StatefulSet
+metadata:
+  name: cassandra-clone
+
+.
+.
+.
+- name: CASSANDRA_SEEDS
+  value: "cassandra-0-clone.cassandra.default.svc.cluster.local"
+```
+
+Create the clone-based cassandra cluster
+```
+kubectl create -f specs/cassandra-clone-from-3dsnap.yaml
+statefulset.apps "cassandra-clone" created
+```
+
+(TODO, the clone based cassandra cluster is complaining about seed `ERROR 15:25:41 Exception encountered during startup: The seed provider lists no seeds.`)
