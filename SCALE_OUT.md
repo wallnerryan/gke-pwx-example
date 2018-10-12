@@ -91,7 +91,7 @@ portworx-tbbx6   1/1       Running   4          22h
 ```
 
 Then it succefully adds the node
-```
+
 ```
 kubectl get po -n kube-system -l name=portworx                                                  
 NAME             READY     STATUS    RESTARTS   AGE
