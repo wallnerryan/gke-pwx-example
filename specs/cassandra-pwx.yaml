@@ -111,6 +111,8 @@ spec:
       name: cassandra-data
       annotations:
         volume.beta.kubernetes.io/storage-class: px-storageclass
+      labels:
+        app: cassandra
     spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:

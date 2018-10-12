@@ -2,13 +2,10 @@
 
 1. create cassandra
 2. create some data by running perf
-
-(TODO)
-
 3. create group snap
 
 (TODO)
-- backup
+- backup?
 - cloudsnap?
 - restore?
 
@@ -74,4 +71,68 @@ Total GC time             :    0.0 seconds
 Avg GC time               :    NaN ms
 StdDev GC time            :    0.0 ms
 Total operation time      : 00:01:01
+```
+
+## Create a snapgroup (consistent group snapshot)
+
+Snapgroups (https://docs.portworx.com/scheduler/kubernetes/snaps-group.html) can be used by snapshotting a group of volumes with a label or group id. Below, is a snippet that shows you each volume gets the `label` of `app=cassandra` so we can create a snapgroup from this informaiton.
+
+```
+volumeClaimTemplates:
+  - metadata:
+      name: cassandra-data
+      annotations:
+        volume.beta.kubernetes.io/storage-class: px-storageclass
+      labels:
+        app: cassandra
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: 10Gi
+```
+
+An example snapshot group is below. You can see we include the label selector in the annotations as well as this will be a local snapgroup (optionally we can make it a cloudsnap).
+
+```
+# This consistent snapshot group will snapshot ALL
+# volumes with label `db-group: db-data`
+# as a consistent portworx local snapgroup
+apiVersion: volumesnapshot.external-storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: cassandra-snapshot-group
+  namespace: default
+  annotations:
+    portworx/snapshot-type: local
+    portworx.selector/app: cassandra
+spec:
+  # persistentVolumeClaimName in the above spec can be name of 
+  # any single PVC that will get matched using the selector
+  persistentVolumeClaimName: cassandra-data-cassandra-0
+```
+
+## Create the snapshot group
+```
+kubectl create -f specs/cassandra-snapgroup.yaml
+volumesnapshot.volumesnapshot.external-storage.k8s.io "cassandra-snapshot-group" created
+```
+
+## View the snapshot group
+```
+kubectl get volumesnapshot
+NAME                                                                                       AGE
+cassandra-snapshot-group                                                                   20s
+cassandra-snapshot-group-cassandra-data-cassandra-0-c567c826-ce20-11e8-8281-42010a8e0115   18s
+cassandra-snapshot-group-cassandra-data-cassandra-1-c567c826-ce20-11e8-8281-42010a8e0115   16s
+cassandra-snapshot-group-cassandra-data-cassandra-2-c567c826-ce20-11e8-8281-42010a8e0115   17s
+```
+
+## View the group snapshot in `pxctl`
+```
+pxctl volume list -s
+ID			NAME												SIZE	HA	SHARED	ENCRYPTED	IO_PRIORITY	STATUS		HA-STATE
+623237428776128574	group_snap_2_1539350078_pvc-011958c8-ce20-11e8-8281-42010a8e0115				10 GiB	2	no	no		MEDIUM		none - detached	Detached
+1063977941417974563	group_snap_2_1539350078_pvc-18076b5b-ce20-11e8-8281-42010a8e0115				10 GiB	2	no	no		MEDIUM		none - detached	Detached
+586092072464896250	group_snap_2_1539350078_pvc-ee62365d-ce1f-11e8-8281-42010a8e0115				10 GiB	2	no	no		MEDIUM		none - detached	Detached
 ```

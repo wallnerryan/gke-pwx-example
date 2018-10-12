@@ -10,4 +10,6 @@ metadata:
     portworx/snapshot-type: local
     portworx.selector/app-group: wordpress
 spec:
-  persistentVolumeClaimName: wordpress-snapgroup
+  # persistentVolumeClaimName in the above spec can be name of 
+  # any single PVC that will get matched using the selector
+  persistentVolumeClaimName: mysql-pvc-1
