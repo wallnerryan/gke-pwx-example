@@ -5,9 +5,7 @@
 2. create data
 3. setup cloudsnap
 4. create cloudsnap to google object storage
-
-(TODO)
-4. restore 
+5. restore postgres from cloudsnap backup
 
 ## Create Postgres
 
