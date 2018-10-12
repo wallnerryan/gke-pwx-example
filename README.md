@@ -200,11 +200,31 @@ Global Storage Pool
 ```
 
 
-## TODO
-- ha failover example
-- postgres example
-- 3d snap example
-- cloudsnap
-- restore
-- scale
+## Expose LightHouse
+
+```
+gcloud compute firewall-rules create lighthouse-ingress-http \
+  --allow tcp:32678 \
+  --target-tags=portworx
+```
+
+
+Visit the following
+```
+echo http://"$(kubectl describe no gke-test-cluster-ryan-default-pool-a072badd-bztf | grep ExternalIP | awk '{print $2}')":32678
+
+http://35.237.126.155:32678
+```
+
+Login
+```
+admin/Password1
+```
+
+Use the Cluster IP in the output below for `Cluster Endpoint` in the UI and click `Verify` then `Attach` 
+```
+kubectl get svc -n kube-system portworx-service
+NAME               TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+portworx-service   ClusterIP   10.15.245.175   <none>        9001/TCP   23h
+```
 
