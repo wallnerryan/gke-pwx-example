@@ -6,7 +6,7 @@
 4. create 3dsnap (creates snapgroup indirectly)
   - Included rules to flushe the tables from the memtable on all cassandra pods.
 5. backup via above 3dsnap
-6. restore from 3dsnap clones
+6. restore cassandra from 3dsnap clones
 
 ## Create
 
@@ -354,22 +354,65 @@ pxctl volume list | grep pvc-f76b4ebb-ce31-11e8-8281-42010a8e0115
 ```
 
 create a StatefulSet that now uses `cassandra-clone` for its name and other parameters so it picks up our PVC clones.
+
+>There are others, please see `specs/cassandra-clone-from-3dsnap.yaml`
+
 ```
 kind: StatefulSet
 metadata:
   name: cassandra-clone
-
 .
 .
 .
 - name: CASSANDRA_SEEDS
-  value: "cassandra-0-clone.cassandra.default.svc.cluster.local"
+  value: "cassandra-0-clone.cassandra-clone.default.svc.cluster.local"
 ```
 
 Create the clone-based cassandra cluster
 ```
 kubectl create -f specs/cassandra-clone-from-3dsnap.yaml
-statefulset.apps "cassandra-clone" created
+service/cassandra-clone created
+statefulset.apps/cassandra-clone created
 ```
 
-(TODO, the clone based cassandra cluster is complaining about seed `ERROR 15:25:41 Exception encountered during startup: The seed provider lists no seeds.`)
+### view the clone
+```
+kubectl get po -l app=cassandra-clone
+NAME                READY     STATUS    RESTARTS   AGE
+cassandra-clone-0   1/1       Running   0          1m
+cassandra-clone-1   1/1       Running   0          1m
+cassandra-clone-2   1/1       Running   0          53s
+```
+
+### Make sure cassandra is using our 3dsnaped clones.
+
+> `pvc-f76b4ebb-ce31-11e8-8281-42010a8e0115` is a pvc name from `kubectl get pvc | grep cassandra-data-cassandra-clone-0`
+
+```
+$ kubectl describe po cassandra-clone-0 | grep pvc-f76b4ebb-ce31-11e8-8281-42010a8e0115
+Normal  SuccessfulMountVolume  7m    kubelet, gke-test-cluster-ryan-default-pool-a072badd-sqbk  MountVolume.SetUp succeeded for volume "pvc-f76b4ebb-ce31-11e8-8281-42010a8e0115"
+```
+
+### View the data is still there
+```
+kubectl exec -it cassandra-clone-0 /bin/bash
+
+root@cassandra-clone-0:/# apt update -y; apt install -y python python-pip; pip install cqlsh;
+
+root@cassandra-clone-0:/# /usr/local/bin/cqlsh --cqlversion="3.4.2"
+Connected to K8Demo at 127.0.0.1:9042.
+[cqlsh 5.0.1 | Cassandra 3.9 | CQL spec 3.4.2 | Native protocol v4]
+Use HELP for help.
+cqlsh>
+cqlsh> describe keyspaces;
+
+tutorialspoint  system_auth  system              system_traces
+system_schema   newkeyspace  system_distributed
+
+cqlsh> use newkeyspace;
+cqlsh:newkeyspace> select * from emp;
+
+ emp_id | emp_city  | emp_name | emp_phone  | emp_sal
+--------+-----------+----------+------------+---------
+      1 | Hyderabad |      ram | 9848022338 |   50000
+```

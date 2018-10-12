@@ -1,3 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cassandra-clone
+  name: cassandra-clone
+spec:
+  clusterIP: None
+  ports:
+    - port: 9042
+  selector:
+    app: cassandra-clone
+---
+
 apiVersion: "apps/v1beta1"
 kind: StatefulSet
 metadata:
@@ -46,7 +60,7 @@ spec:
           - name: HEAP_NEWSIZE
             value: 500M
           - name: CASSANDRA_SEEDS
-            value: "cassandra-clone-0.cassandra.default.svc.cluster.local"
+            value: "cassandra-clone-0.cassandra-clone.default.svc.cluster.local"
           - name: CASSANDRA_CLUSTER_NAME
             value: "K8Demo"
           - name: CASSANDRA_DC
