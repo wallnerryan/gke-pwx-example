@@ -40,8 +40,8 @@ gcloud container clusters create test-cluster-ryan \
 --disk-type=pd-ssd \
 --disk-size=50GB \
 --labels=portworx=gke \
---machine-type=n1-standard-8 \
---num-nodes=3 \
+--machine-type=n1-standard-4 \
+--num-nodes=1 \
 --image-type ubuntu \
 --enable-autoscaling --max-nodes=6 --min-nodes=3
 ```
@@ -75,6 +75,9 @@ endpoint: 35.231.17.210
 
 Configure kubectl
 `gcloud container clusters get-credentials test-cluster-ryan`
+
+Or
+`gcloud container clusters get-credentials --region us-east1 test-cluster-ryan`
 
 Get nodes
 ```

@@ -1,0 +1,14 @@
+apiVersion: stork.libopenstorage.org/v1alpha1
+kind: Rule
+metadata:
+  name: postgres-3dsnap-prerule
+spec:
+  - podSelector:
+      app: postgres
+    actions:
+    - type: command
+      # https://www.postgresql.org/docs/10/static/sql-checkpoint.html
+      # a point in the write-ahead log sequence at which all 
+      # data files have been updated to reflect the information in the log.
+      # All data files will be flushed to disk.
+      value: psql -U postgres -c CHECKPOINT;

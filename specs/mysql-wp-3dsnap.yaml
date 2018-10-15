@@ -3,7 +3,7 @@ kind: VolumeSnapshot
 metadata:
   name: wpmysql-3d-snapshot
   annotations:
-    stork.rule/pre-snapshot: px-mysqlwp-3d-presnap-rule.yaml
-    stork.rule/post-snapshot: px-mysqlwp-3d-postsnap-rule.yaml
+    stork.rule/pre-snapshot: px-mysqlwp-3d-presnap-rule
+    stork.rule/post-snapshot: px-mysqlwp-3d-postsnap-rule
 spec:
   persistentVolumeClaimName: mysql-data

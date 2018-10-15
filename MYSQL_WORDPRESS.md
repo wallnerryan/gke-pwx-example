@@ -72,4 +72,10 @@ http://35.237.126.155:30303/wp-admin/install.php
 2. create your first post. (example: http://35.237.126.155:30303/2018/10/11/first-post/)
 
 
+### IO Profiles
+- https://docs.portworx.com/maintain/performance/tuning.html
 
+```
+CMS
+This is useful for content management systems, like WordPress. This option applies to a PX shared (global namespace) volume. It implements an attribute cache and supports async writes. This increases the PX memory footprint by 100MB. Use io_profile=cms.
+```
