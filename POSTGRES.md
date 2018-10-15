@@ -6,6 +6,7 @@
 3. setup cloudsnap
 4. create cloudsnap to google object storage
 5. restore postgres from cloudsnap backup
+6. 3DSnapshot example using `CHECKPOINT`
 
 ## Create Postgres
 
