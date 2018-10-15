@@ -147,6 +147,8 @@ tmpfs           7.4G     0  7.4G   0% /sys/fs/cgroup
 /dev/sdb        492G  110M  467G   1% /var/lib/postgresql
 ```
 
+## Testing with pgbench
+
 Load the DB for perf
 ```
 root@ryantesting:~# su postgres
