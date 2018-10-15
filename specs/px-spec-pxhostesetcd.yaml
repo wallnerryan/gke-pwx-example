@@ -549,8 +549,8 @@ spec:
           image: portworx/oci-monitor:1.6.1.1
           imagePullPolicy: Always
           args:
-            ["-k", "etcd:http://px-etcd1.portworx.com:2379,etcd:http://px-etcd2.portworx.com:2379,etcd:http://px-etcd3.portworx.com:2379", "-c", "px-cluster-007aa43d-f378-49d6-b410-0670dde8f5b7", "-s", "type=pd-ssd,size=50", "-secret_type", "k8s",  
-             "-x", "kubernetes"]
+            ["-k", "etcd:http://px-etcd1.portworx.com:2379,etcd:http://px-etcd2.portworx.com:2379,etcd:http://px-etcd3.portworx.com:2379", "-c", "px-cluster-00c416dd-9f32-405d-96a1-cc3798619c41", "-s", "type=pd-ssd,size=500", "-secret_type", "k8s",  
+             "-j", "auto","-max_storage_nodes_per_zone", "3", "-x", "kubernetes"]
           env:
             - name: "PX_TEMPLATE_VERSION"
               value: "v4"
