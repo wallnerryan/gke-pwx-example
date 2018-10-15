@@ -211,7 +211,7 @@ gcloud compute firewall-rules create lighthouse-ingress-http \
 
 Visit the following
 ```
-echo http://"$(kubectl describe no gke-test-cluster-ryan-default-pool-a072badd-bztf | grep ExternalIP | awk '{print $2}')":32678
+echo http://"$(kubectl describe no <ANY_GKE_WORKER_NODE_NAME> | grep ExternalIP | awk '{print $2}')":32678
 
 http://35.237.126.155:32678
 ```
