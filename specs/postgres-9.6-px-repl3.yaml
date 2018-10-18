@@ -6,6 +6,8 @@ provisioner: kubernetes.io/portworx-volume
 parameters:
    repl: "3"
    io_profile: "db"
+   priority_io: "high"
+   journal: "false"
 
 ---
 
@@ -13,7 +15,7 @@ parameters:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-   name: postgres-data
+   name: postgres-data-repl3
    annotations:
      volume.beta.kubernetes.io/storage-class: px-postgres-sc-repl3
 spec:
@@ -40,12 +42,12 @@ data:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: postgres
+  name: postgres-repl3
 spec:
   template:
     metadata:
       labels:
-        app: postgres
+        app: postgres-repl3
     spec:
       schedulerName: stork
       containers:
@@ -58,9 +60,9 @@ spec:
         - containerPort: 5432
           name: postgres
         volumeMounts:
-        - name: postgres-data
-          mountPath: /var/lib/postgresql/
+        - name: postgres-data-repl3
+          mountPath: /var/lib/postgresql/data/pgdata
       volumes:
-      - name: postgres-data
+      - name: postgres-data-repl3
         persistentVolumeClaim:
-          claimName: postgres-data
+          claimName: postgres-data-repl3

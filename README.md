@@ -231,3 +231,18 @@ NAME               TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
 portworx-service   ClusterIP   10.15.245.175   <none>        9001/TCP   23h
 ```
 
+## Add Monitoring
+
+https://docs.portworx.com/scheduler/kubernetes/monitoring-px-prometheusAndGrafana.html
+
+```
+kubectl create -f specs/service-monitor.yaml
+kubectl create -f specs/prometheus-cluster.yaml
+kubectl create configmap grafana-config --from-file=$(pwd)/files/grafanaConfigurations -n kube-system
+kubectl apply -f specs/grafana-deployment.yaml
+```
+
+> Make sure to follow other directions such as adding data source named 'prometheus'
+
+> Grafana default login is admin/admin
+
