@@ -1,0 +1,10 @@
+apiVersion: volumesnapshot.external-storage.k8s.io/v1
+kind: VolumeSnapshot
+metadata:
+  name: postgres-3d-cloudsnapshot
+  namespace: default
+  annotations:
+    stork.rule/pre-snapshot: postgres-3dsnap-prerule
+    portworx/snapshot-type: cloud
+spec:
+  persistentVolumeClaimName: postgres-data
