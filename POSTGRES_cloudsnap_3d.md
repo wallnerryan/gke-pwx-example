@@ -272,15 +272,7 @@ kubectl create -f specs/cloudsnap-3d-postgres.yaml
 volumesnapshot.volumesnapshot.external-storage.k8s.io "postgres-data" created
 ```
 
-## View Snapshot
-
-```
-pxctl volume list -s
-ID			NAME												SIZE	HA	SHARED	ENCRYPTED	IO_PRIORITY	STATUS		HA-STATE
-759039737635622804	pvc-9dd4e6b0-cd92-11e8-8281-42010a8e0115_394637582233985887_clmanual_2018-10-11T20-37-21	5 GiB	1	no	no		LOW		none - detached	Detached
-```
-
-or via cloudsnap
+## View the CloudSnap
 
 ```
 pxctl cloudsnap list
@@ -334,39 +326,13 @@ wordpress-mysql-f7df569c8-qmdz6   1/1       Running   0          17h
 
 ## Create a PVC from the cloudsnap
 
-Create a PVC from the cloudsnap `postgres-snapshot-cheese` we took before
-
 > Note that we are using the `stork-snapshot-sc` StorageClass to allow stork to instruct cloning our cloudsnap
 
-```
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: postgres-snapshot-cheese-clone
-  annotations:
-    snapshot.alpha.kubernetes.io/snapshot: postgres-snapshot-cheese
-spec:
-  accessModes:
-     - ReadWriteOnce
-  storageClassName: stork-snapshot-sc
-  resources:
-    requests:
-      storage: 2Gi
-```
-
-And in your Postgres Spec make sure and use it from the volume
-```
-volumes:
-      - name: postgres-data
-        persistentVolumeClaim:
-          claimName: postgres-snapshot-cheese-clone
-```
-
-## Create postgres from cloudsnap
+## Create postgres from cloudsnap with 3DSnapshot
 
 Create postgres
 ```
-kubectl create -f specs/postgres-from-cloudsnap.yaml
+kubectl create -f specs/postgres-from-cloudsnap-3d.yaml
 persistentvolumeclaim "postgres-snapshot-cheese-clone" created
 deployment.extensions "postgres" created
 ```
