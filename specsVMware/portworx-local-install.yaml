@@ -140,13 +140,13 @@ spec:
       volumes:
         - name: dockersock
           hostPath:
-            path: /var/vcap/sys/run/docker/docker.sock
+            path: /var/run/docker.sock
         - name: etcpwx
           hostPath:
-            path: /var/vcap/store/etc/pwx
+            path: /etc/pwx
         - name: optpwx
           hostPath:
-            path: /var/vcap/store/opt/pwx
+            path: /opt/pwx
         - name: proc1nsmount
           hostPath:
             path: /proc/1/ns
