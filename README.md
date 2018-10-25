@@ -1,6 +1,8 @@
-# gke-pwx-example
+# gke-vmw-pwx
 
-### relative links
+Examples and Spec files for working with Portworx on VMWare and GKE
+
+## Related links
 - machine types
   - https://cloud.google.com/compute/docs/machine-types
 - zones
@@ -19,8 +21,11 @@
   - https://github.com/coreos/etcd-operator/blob/master/doc/user/walkthrough/restore-operator.md
 - etcd spec example
   - https://github.com/coreos/etcd-operator/blob/master/doc/user/spec_examples.md
+- PKS
+  - https://pivotal.io/platform/pivotal-container-service 
+  - https://www.vmware.com/content/dam/digitalmarketing/vmware/en/pdf/datasheet/services/vmware-pivotal-container-service-datasheet.pdf
 
-## Setup
+# GKE Setup
 ```
 ▶gcloud config set project <project>
 
@@ -126,7 +131,7 @@ IP:                10.15.250.249
 ### Use your produces spec or the one in `specs/`
 
 ```
-$ kubectl create -f specs/px-spec.yaml
+$ kubectl create -f specsGKE/px-spec.yaml
 configmap/stork-config created
 serviceaccount/stork-account created
 clusterrole.rbac.authorization.k8s.io/stork-role created
@@ -236,13 +241,17 @@ portworx-service   ClusterIP   10.15.245.175   <none>        9001/TCP   23h
 https://docs.portworx.com/scheduler/kubernetes/monitoring-px-prometheusAndGrafana.html
 
 ```
-kubectl create -f specs/service-monitor.yaml
-kubectl create -f specs/prometheus-cluster.yaml
+kubectl create -f specs-common/service-monitor.yaml
+kubectl create -f specs-common/prometheus-cluster.yaml
 kubectl create configmap grafana-config --from-file=$(pwd)/files/grafanaConfigurations -n kube-system
-kubectl apply -f specs/grafana-deployment.yaml
+kubectl apply -f specs-common/grafana-deployment.yaml
 ```
 
 > Make sure to follow other directions such as adding data source named 'prometheus'
 
 > Grafana default login is admin/admin
 
+
+# VMWare/PKS Setup
+
+(TODO)

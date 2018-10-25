@@ -13,7 +13,7 @@ This guide will:
 
 ## Create volumes
 
-`kubectl create -f specs/wordpress-mysql-vols.yaml`
+`kubectl create -f specs-common/wordpress-mysql-vols.yaml`
 
 > Note, there is 2 volumes in then above file, one uses `io_profile=cms` and is `shared` for wordpress and the other using 3 replicas for MySQL and sets a `snap_schedule` to snapshot every 30 minutes and keep the last 5.
 
@@ -23,11 +23,11 @@ This guide will:
 
 ## Create MySQL
 
-`kubectl create -f specs/wp-mysql.yaml`
+`kubectl create -f specs-common/wp-mysql.yaml`
 
 ## Create Wordpress
 
-`kubectl create -f specs/wordpress.yaml`
+`kubectl create -f specs-common/wordpress.yaml`
 
 ## View DB and WP
 

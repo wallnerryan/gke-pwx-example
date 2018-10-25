@@ -51,7 +51,7 @@ spec:
 ### Create repl3 postgres and test
 
 ```
-kubectl create -f specs/postgres-9.6-px-repl3.yaml
+kubectl create -f specs-common/postgres-9.6-px-repl3.yaml
 ```
 
 Update io profile
@@ -63,7 +63,7 @@ Update Volume: Volume update successful for volume pvc-caab3706-d0be-11e8-ab93-4
 ### Create repl2 postgres and test
 
 ```
-kubectl create -f specs/postgres-9.6-px-repl2.yaml
+kubectl create -f specs-common/postgres-9.6-px-repl2.yaml
 ```
 
 Update io profile
@@ -75,7 +75,7 @@ Update Volume: Volume update successful for volume pvc-caab3706-d0be-11e8-ab93-4
 ### Create repl1 postgres and test
 
 ```
-kubectl create -f specs/postgres-9.6-px-repl1.yaml
+kubectl create -f specs-common/postgres-9.6-px-repl1.yaml
 ```
 
 Update io profile

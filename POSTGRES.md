@@ -11,7 +11,7 @@
 ## Create Postgres
 
 ```
-kubectl create -f  specs/postgres-px.yaml
+kubectl create -f  specs-common/postgres-px.yaml
 storageclass.storage.k8s.io "px-postgres-sc" created
 persistentvolumeclaim "postgres-data" created
 configmap "example-config" created
@@ -123,7 +123,7 @@ spec:
 
 Create the cloudsnap
 ```
-kubectl create -f specs/cloudsnap-postgres.yaml
+kubectl create -f specs-common/cloudsnap-postgres.yaml
 volumesnapshot.volumesnapshot.external-storage.k8s.io "postgres-data" created
 ```
 
@@ -221,7 +221,7 @@ volumes:
 
 Create postgres
 ```
-kubectl create -f specs/postgres-from-cloudsnap.yaml
+kubectl create -f specs-common/postgres-from-cloudsnap.yaml
 persistentvolumeclaim "postgres-snapshot-cheese-clone" created
 deployment.extensions "postgres" created
 ```
@@ -357,7 +357,7 @@ spec:
 
 #### Create and View the Pre Snapshot Rule
 ```
-kubectl create -f specs/postgres-3dsnap-prerule.yaml
+kubectl create -f specs-common/postgres-3dsnap-prerule.yaml
 rule.stork.libopenstorage.org/postgres-3dsnap-prerule created
 ```
 
@@ -393,7 +393,7 @@ Events:   <none>
 #### Create the 3D Snapshot
 
 ```
-kubectl create -f specs/postgres-3d-snap.yaml
+kubectl create -f specs-common/postgres-3d-snap.yaml
 volumesnapshot.volumesnapshot.external-storage.k8s.io/postgres-3d-snapshot created
 ```
 

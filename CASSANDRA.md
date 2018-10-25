@@ -11,7 +11,7 @@
 ## Create
 
 ```
-kubectl create -f specs/cassandra-pwx.yaml
+kubectl create -f specs-common/cassandra-pwx.yaml
 service/cassandra created
 storageclass.storage.k8s.io/px-storageclass created
 statefulset.apps/cassandra created
@@ -145,7 +145,7 @@ spec:
 
 ## Create the snapshot group
 ```
-kubectl create -f specs/cassandra-snapgroup.yaml
+kubectl create -f specs-common/cassandra-snapgroup.yaml
 volumesnapshot.volumesnapshot.external-storage.k8s.io "cassandra-snapshot-group" created
 ```
 
@@ -191,7 +191,7 @@ spec:
 
 ### create the rule
 ```
-kubectl create -f specs/cassandra-3dsnap-presnap-rule.yaml
+kubectl create -f specs-common/cassandra-3dsnap-presnap-rule.yaml
 rule.stork.libopenstorage.org "px-cassandra-presnap-rule" created
 ```
 
@@ -213,7 +213,7 @@ spec:
 
 ### Create the snapshot
 ```
-kubectl create -f specs/cassandra-3d-snap.yaml
+kubectl create -f specs-common/cassandra-3d-snap.yaml
 volumesnapshot.volumesnapshot.external-storage.k8s.io "cassandra-3d-snapshot" created
 ```
 
@@ -326,7 +326,7 @@ spec:
 
 Create them.
 ```
-kubectl create -f specs/cassandra-pwx-clones-from-3dsnap.yaml
+kubectl create -f specs-common/cassandra-pwx-clones-from-3dsnap.yaml
 persistentvolumeclaim "cassandra-data-cassandra-clone-0" created
 persistentvolumeclaim "cassandra-data-cassandra-clone-1" created
 persistentvolumeclaim "cassandra-data-cassandra-clone-2" created
@@ -355,7 +355,7 @@ pxctl volume list | grep pvc-f76b4ebb-ce31-11e8-8281-42010a8e0115
 
 create a StatefulSet that now uses `cassandra-clone` for its name and other parameters so it picks up our PVC clones.
 
->There are others, please see `specs/cassandra-clone-from-3dsnap.yaml`
+>There are others, please see `specs-common/cassandra-clone-from-3dsnap.yaml`
 
 ```
 kind: StatefulSet
@@ -370,7 +370,7 @@ metadata:
 
 Create the clone-based cassandra cluster
 ```
-kubectl create -f specs/cassandra-clone-from-3dsnap.yaml
+kubectl create -f specs-common/cassandra-clone-from-3dsnap.yaml
 service/cassandra-clone created
 statefulset.apps/cassandra-clone created
 ```

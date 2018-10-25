@@ -11,7 +11,7 @@ _CloudSnap used 3DSnap directly to GCS_
 ## Create Postgres
 
 ```
-kubectl create -f  specs/postgres-px.yaml
+kubectl create -f  specs-common/postgres-px.yaml
 storageclass.storage.k8s.io "px-postgres-sc" created
 persistentvolumeclaim "postgres-data" created
 configmap "example-config" created
@@ -135,7 +135,7 @@ spec:
 
 #### Create and View the Pre Snapshot Rule
 ```
-kubectl create -f specs/postgres-3dsnap-prerule.yaml
+kubectl create -f specs-common/postgres-3dsnap-prerule.yaml
 rule.stork.libopenstorage.org/postgres-3dsnap-prerule created
 ```
 
@@ -187,7 +187,7 @@ spec:
 
 Create the cloudsnap
 ```
-kubectl create -f specs/cloudsnap-3d-postgres.yaml
+kubectl create -f specs-common/cloudsnap-3d-postgres.yaml
 volumesnapshot.volumesnapshot.external-storage.k8s.io "postgres-data" created
 ```
 
@@ -251,7 +251,7 @@ wordpress-mysql-f7df569c8-qmdz6   1/1       Running   0          17h
 
 Create postgres
 ```
-kubectl create -f specs/postgres-from-cloudsnap-3d.yaml
+kubectl create -f specs-common/postgres-from-cloudsnap-3d.yaml
 persistentvolumeclaim "postgres-snapshot-cheese-clone" created
 deployment.extensions "postgres" created
 ```
