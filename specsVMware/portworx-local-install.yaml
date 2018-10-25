@@ -79,7 +79,7 @@ spec:
       hostPID: true
       containers:
         - name: portworx
-          image: portworx/oci-monitor:1.6.1.1
+          image: portworx/oci-monitor:1.6.1.3
           imagePullPolicy: Always
           args:
             ["-c", "[replace:Cluster_Unique_ID]", "-k", "etcd:http://px-etcd1.portworx.com:2379,etcd:http://px-etcd2.portworx.com:2379,etcd:http://px-etcd3.portworx.com:2379", "-x", "kubernetes","-secret_type", "k8s","-s", "type=zeroedthick"]
