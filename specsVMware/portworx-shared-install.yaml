@@ -86,6 +86,7 @@ spec:
             ["-c", "[replace:Cluster_Unique_ID]",
              # CHANGEME change to match your etcd endpoints
              "-k", "etcd:http://px-etcd1.portworx.com:2379,etcd:http://px-etcd2.portworx.com:2379,etcd:http://px-etcd3.portworx.com:2379",
+             "-secret_type", "k8s",
              "-x", "kubernetes",
              # CHANGEME size from 20 to size in GB of the drive you want on each node
              "-s", "size=20,type=zeroedthick"]
