@@ -1,0 +1,39 @@
+apiVersion: stork.libopenstorage.org/v1alpha1
+kind: ClusterPair
+metadata:
+  creationTimestamp: null
+  name: gke-pd-clusterpair
+spec:
+  config:
+    clusters:
+      gke_portworx-eng_us-east1-d_ryan-2-0-cluster-2:
+        LocationOfOrigin: /Users/ryanwallner/.kube/config
+        certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURDekNDQWZPZ0F3SUJBZ0lRVjJnNmwrTXU0UldjQWk5NW5tV2tJekFOQmdrcWhraUc5dzBCQVFzRkFEQXYKTVMwd0t3WURWUVFERXlSak9EVTBObUU0TUMwM1kySTRMVFF3TURRdE9EVXdOQzB6WkdFeU9HRTRNelk0T0dRdwpIaGNOTVRneE1UQTFNVGN3TnpFM1doY05Nak14TVRBME1UZ3dOekUzV2pBdk1TMHdLd1lEVlFRREV5UmpPRFUwCk5tRTRNQzAzWTJJNExUUXdNRFF0T0RVd05DMHpaR0V5T0dFNE16WTRPR1F3Z2dFaU1BMEdDU3FHU0liM0RRRUIKQVFVQUE0SUJEd0F3Z2dFS0FvSUJBUUROa0RveForVE5XVk50M1VsUHIrZk1JTGFrdEg4ZWljV1dzZDQwN1lqTApJdUIvZ1BWWVZkdGxMY1VnUEY3ZWxXTmFCMitJWkRVcmRnaXlXbkVnOXkzcVpoTlJVTytuclRTVjMyN3RpdENHCjRWSlcrUGVxYUZabGViMERocDdoN2t0elhUejhWbmRiS245N0xKZEZ1ZzBPY1J4V1p6SlZQRnpkbmJGVkZBRCsKU0lPeDk4Wk8yR01BMkJlS0V0bm1QUEFhV01rbnJ2eWxnKzlHNllXWVlKWGEzcytPN0tnY0hSWVg2dERGOHZ6UAp5QnBHTVlXSTJEWm5UN3RxVWNMTis0LzVyRkoxMjhjL28yN3pkRWxIUElpcjhoS2p1bUtuTDVtM3A2dHYyTEQ4CnRZT0RmSkpod081a3Y1RjFKUmxkeVdQR2N4NEdEdk03aFl3N2cyTTNyTDMvQWdNQkFBR2pJekFoTUE0R0ExVWQKRHdFQi93UUVBd0lDQkRBUEJnTlZIUk1CQWY4RUJUQURBUUgvTUEwR0NTcUdTSWIzRFFFQkN3VUFBNElCQVFCZwo3aWg0OHk0Z3Y3YXUyY1hLVXRBam1OVmNBaDFmY0ZDVlk2QjJnY2RNMGprSGhrN3RweDkyV1lyNHUzZmJnY2ZrCnpsS2xLbXJScXhXTmw1Zk9OeEtUUkFzT0ZULzFLNWxtVUtFQWxtRkxjT050eVdPcGN0UUhlQWtrdE1XVFB5WXIKeTM2UzUvTkc2T3dwNGtFTjBjWXdHSjJEYkpCeUlBS3o2M3JKdFZaYUVHcmlCMFNvRHRRQkMzcndLaXFGTUR3cgorSjRkNjBhbDZhdUNRYXNhaHNack10MEU3eTNMSG4zVXVKcDF5WlVwT1Z1UG1FUC9YODBOK2lYMUs4Y0NVc3YrCjJZN3FPdUIvOVpnTEMwUFo1aUl1aTRLdEhBd1I3amUza3FNRmdYRCt1ei9SZXVmL3hHRFlQWVlTbEwrS2UyR2YKYjlERkhGcFFjWWIzTnNFM21vRmQKLS0tLS1FTkQgQ0VSVElGSUNBVEUtLS0tLQo=
+        server: https://35.190.167.108
+    contexts:
+      gke_portworx-eng_us-east1-d_ryan-2-0-cluster-2:
+        LocationOfOrigin: /Users/ryanwallner/.kube/config
+        cluster: gke_portworx-eng_us-east1-d_ryan-2-0-cluster-2
+        user: gke_portworx-eng_us-east1-d_ryan-2-0-cluster-2
+    current-context: gke_portworx-eng_us-east1-d_ryan-2-0-cluster-2
+    preferences: {}
+    users:
+      gke_portworx-eng_us-east1-d_ryan-2-0-cluster-2:
+        LocationOfOrigin: /Users/ryanwallner/.kube/config
+        auth-provider:
+          config:
+            access-token: ya29.Gl1LBvHwsdnyLOw1Roc9IIrUSmEHDiXldH1qVqnBKSWFqkCisj2ZOBGZbAVqYG2m4ZbFEVILYsv70gEbXzE88yQT0vUL-4YRyDwahaGZjtFUmxGCCJ70Vwctigzsf0Q
+            cmd-args: config config-helper --format=json
+            cmd-path: /usr/local/bin/gcloud
+            expiry: "2018-11-05T21:09:20Z"
+            expiry-key: '{.credential.token_expiry}'
+            token-key: '{.credential.access_token}'
+          name: gcp
+  options:
+    ip: "104.196.202.127"
+    port: "9001"
+    token: "a1232e2c5340254db34db7394b9d285c243080b149d502c70b0b245982e916ba921b535dc096fa7f9ec1a73874944f5fe18b6ad9a55b48f6de8ec58aad021826"
+status:
+  remoteStorageId: ""
+  schedulerStatus: ""
+  storageStatus: ""

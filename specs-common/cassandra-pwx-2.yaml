@@ -2,21 +2,21 @@ apiVersion: v1
 kind: Service
 metadata:
   labels:
-    app: cassandra
-  name: cassandra
+    app: cassandra-2
+  name: cassandra-2
 spec:
   clusterIP: None
   ports:
     - port: 9042
   selector:
-    app: cassandra
+    app: cassandra-2
 
 ---
 
 kind: StorageClass
 apiVersion: storage.k8s.io/v1
 metadata:
-  name: px-storageclass
+  name: px-storageclass-2
 provisioner: kubernetes.io/portworx-volume
 parameters:
   repl: "2"
@@ -28,19 +28,19 @@ parameters:
 apiVersion: "apps/v1beta1"
 kind: StatefulSet
 metadata:
-  name: cassandra
+  name: cassandra-2
 spec:
-  serviceName: cassandra
+  serviceName: cassandra-2
   replicas: 3
   template:
     metadata:
       labels:
-        app: cassandra
+        app: cassandra-2
     spec:
       # Use the stork scheduler to enable more efficient placement of the pods
       schedulerName: stork
       containers:
-      - name: cassandra
+      - name: cassandra-2
         image: gcr.io/google-samples/cassandra:v12
         imagePullPolicy: Always
         ports:
@@ -54,10 +54,10 @@ spec:
           name: cql
         resources:
           limits:
-            cpu: ".2"
+            cpu: ".3"
             memory: 2Gi
           requests:
-           cpu: ".2"
+           cpu: ".3"
            memory: 2Gi
         securityContext:
           capabilities:
@@ -73,7 +73,7 @@ spec:
           - name: HEAP_NEWSIZE
             value: 500M
           - name: CASSANDRA_SEEDS
-            value: "cassandra-0.cassandra.default.svc.cluster.local"
+            value: "cassandra-2-0.cassandra-2.default.svc.cluster.local"
           - name: CASSANDRA_CLUSTER_NAME
             value: "K8Demo"
           - name: CASSANDRA_DC
@@ -102,17 +102,17 @@ spec:
         # but not exactly because the names need to match exactly one of
         # the stateful pod volumes.
         volumeMounts:
-        - name: cassandra-data
+        - name: cassandra-data-2
           mountPath: /cassandra_data
   # These are converted to volume claims by the controller
   # and mounted at the paths mentioned above.
   volumeClaimTemplates:
   - metadata:
-      name: cassandra-data
+      name: cassandra-data-2
       annotations:
-        volume.beta.kubernetes.io/storage-class: px-storageclass
+        volume.beta.kubernetes.io/storage-class: px-storageclass-2
       labels:
-        app: cassandra
+        app: cassandra-2
     spec:
       accessModes: [ "ReadWriteOnce" ]
       resources:
