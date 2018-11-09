@@ -1,7 +1,7 @@
 kind: StorageClass
 apiVersion: storage.k8s.io/v1beta1
 metadata:
-    name: px-postgres-sc-2
+    name: px-postgres-sc
     namespace: demo
 provisioner: kubernetes.io/portworx-volume
 parameters:
@@ -14,10 +14,10 @@ parameters:
 kind: PersistentVolumeClaim
 apiVersion: v1
 metadata:
-   name: postgres-data-2
+   name: postgres-data
    namespace: demo
    annotations:
-     volume.beta.kubernetes.io/storage-class: px-postgres-sc-2
+     volume.beta.kubernetes.io/storage-class: px-postgres-sc
 spec:
    accessModes:
      - ReadWriteOnce
@@ -30,7 +30,7 @@ spec:
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: example-config-2
+  name: example-config
   namespace: demo
 data:
   EXAMPLE_DB_HOST: postgres://postgres@postgres/example?sslmode=disable
@@ -43,13 +43,13 @@ data:
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: postgres-2
+  name: postgres
   namespace: demo
 spec:
   template:
     metadata:
       labels:
-        app: postgres-2
+        app: postgres
     spec:
       schedulerName: stork
       containers:
@@ -57,14 +57,14 @@ spec:
         name: postgres
         envFrom:
         - configMapRef:
-            name: example-config-2
+            name: example-config
         ports:
         - containerPort: 5432
-          name: postgres-2
+          name: postgres
         volumeMounts:
-        - name: postgres-data-2
+        - name: postgres-data
           mountPath: /var/lib/postgresql/data
       volumes:
-      - name: postgres-data-2
+      - name: postgres-data
         persistentVolumeClaim:
-          claimName: postgres-data-2
+          claimName: postgres-data

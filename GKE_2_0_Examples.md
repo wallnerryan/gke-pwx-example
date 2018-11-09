@@ -196,13 +196,16 @@ gke-ryan-2-0-cluster-2-default-pool-36435116-j5wp   Ready     <none>    1h      
 
 Create Apps
 ```
-kubectl create -f specs-common/postgres-px.yaml
+kubectl create -f specs-common/postgres-px-1.yaml
 kubectl create -f specs-common/postgres-px-2.yaml
-kubectl create -f specs-common/cassandra-pwx.yaml
+kubectl create -f specs-common/cassandra-pwx-1.yaml
 kubectl create -f specs-common/cassandra-pwx-2.yaml
-kubectl create -f specs-common/wordpress-mysql-vols.yaml
-kubectl create secret generic mysql-pass --from-file=files/mysqlpasswd.txt
-kubectl create -f specs-common/wp-mysql.yaml
+kubectl create -f specs-common/wordpress-mysql-vols-2.yaml
+kubectl create secret generic mysql-pass-2 -n demo --from-file=files/mysqlpasswd.txt
+kubectl create -f specs-common/wp-mysql-2.yaml
+kubectl create -f specs-common/mysql-1.yaml
+kubectl create -f specs-common/mysql-2.yaml
+kubectl create -f specs-common/mysql-3.yaml
 ```
 
 Show Utilization

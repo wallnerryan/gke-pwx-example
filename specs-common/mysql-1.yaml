@@ -1,0 +1,72 @@
+kind: StorageClass
+apiVersion: storage.k8s.io/v1beta1
+metadata:
+    name: mysql-tester-class-1
+    namespace: demo
+provisioner: kubernetes.io/portworx-volume
+parameters:
+   repl: "3"
+
+---
+
+##### Portworx persistent volume claim
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+   # Important do not change for testing
+   name: mysql-data-1
+   namespace: demo
+   annotations:
+     volume.beta.kubernetes.io/storage-class: mysql-tester-class-1
+spec:
+   accessModes:
+     - ReadWriteOnce
+   resources:
+     requests:
+       storage: 12Gi
+
+---
+
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql-1
+  namespace: demo
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+    type: RollingUpdate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: mysql-1
+    spec:
+      containers:
+      - name: mysql-1
+        resources:
+          requests:
+            memory: "500Mi"
+            cpu: "100m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        image: mysql:5.6
+        env:
+          # Use secret in real usage
+        - name: MYSQL_ROOT_PASSWORD
+          value: password
+        - name: ENVVARTEST
+          value: foo
+        ports:
+        - containerPort: 3306
+          name: mysql-1
+        volumeMounts:
+        - name: mysql-data-1
+          mountPath: /var/lib/mysql
+      volumes:
+      - name: mysql-data-1
+        persistentVolumeClaim:
+          claimName: mysql-data-1
