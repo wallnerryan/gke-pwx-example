@@ -230,24 +230,3 @@ Create the cluster pair
 ▶ kubectl create -f clusterpair.yaml
 clusterpair.stork.libopenstorage.org "gke-pd-clusterpair" created
 ```
-
-## GOTCHYAS
-
-update cmd-path
-```
-cmd-path: /usr/local/bin/gcloud
-```
-
-download gcloud to stork pod
-```
-```
-
-## General Plan
-
-a. deploy portworx 2.0 on both clusters (done)
-b. deploy cluster monitoring with node-exporter and prometheus on both clusters (done)
-d. Deploy a whole bunch of applications/databases on Cluster 1 (cassandra)
-c. Show utilization (done)
-d. Create migration to larger cluster with different compute/storage.
-e. Show its using the same data. (web front end?)
-f. Show utilization on new cluster once migration is complete.
