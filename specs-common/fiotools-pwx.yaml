@@ -5,8 +5,7 @@ metadata:
     name: fio-tester-class
 provisioner: kubernetes.io/portworx-volume
 parameters:
-   repl: "1"
-   priority_io: "high"
+   repl: "3"
 
 ---
 
@@ -22,7 +21,7 @@ spec:
      - ReadWriteOnce
    resources:
      requests:
-       storage: 100Gi
+       storage: 50Gi
 
 ---
 
@@ -54,11 +53,11 @@ spec:
           mountPath: /myvol
         env:
           - name: REMOTEFILES
-            value: "https://gist.githubusercontent.com/wallnerryan/06cb07d3d8bee67af025a60a88da053f/raw/12c7baa83f6c137a767ad60230219afaf2fcf780/editablejob.fio"
+            value: "https://gist.githubusercontent.com/wallnerryan/06cb07d3d8bee67af025a60a88da053f/raw/479dcd80ecf8db54e4fff7adf71fcffa832f2c6b/editablejob.fio"
           - name: JOBFILES
             value: editablejob.fio
           - name: PLOTNAME
-            value: write64k5g
+            value: editablejob
       volumes:
       - name: fio-data
         persistentVolumeClaim:

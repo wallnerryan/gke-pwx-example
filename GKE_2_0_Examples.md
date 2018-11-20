@@ -196,6 +196,7 @@ gke-ryan-2-0-cluster-2-default-pool-36435116-j5wp   Ready     <none>    1h      
 
 Create Apps
 ```
+kubectl create ns demo
 kubectl create -f specs-common/postgres-px-1.yaml
 kubectl create -f specs-common/postgres-px-2.yaml
 kubectl create -f specs-common/cassandra-pwx-1.yaml
@@ -206,6 +207,9 @@ kubectl create -f specs-common/wp-mysql-2.yaml
 kubectl create -f specs-common/mysql-1.yaml
 kubectl create -f specs-common/mysql-2.yaml
 kubectl create -f specs-common/mysql-3.yaml
+
+#(optionally inflate cpu/mem usage with stresser)
+kubectl apply -f specs-common/stress.yml
 ```
 
 Show Utilization
@@ -230,3 +234,16 @@ Create the cluster pair
 ▶ kubectl create -f clusterpair.yaml
 clusterpair.stork.libopenstorage.org "gke-pd-clusterpair" created
 ```
+
+## Other
+
+If using px-central, follow
+
+- https://github.com/portworx/px-docs/blob/pxm/maintain/monitoring/px-central.md
+
+`kubectl create secret generic alertmanager-portworx --from-file=specs-common/prometheus-alertmanager-secret.yaml -n kube-system`
+
+Edit CLUSTER_ID to be unique before applying
+`CLUSTER_ID=<unique id>`
+
+
